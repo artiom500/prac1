@@ -1,0 +1,52 @@
+---
+# tasks file for nginx
+    - name: install package
+      apt:
+         name: nginx
+         state: present
+
+    - name: start service
+      service:
+          name: nginx
+          state: started
+          enabled: yes
+
+    - name: Copy config file
+      copy:
+        src: files/nginx.conf
+        dest: /etc/nginx/nginx.conf
+        mode: preserve
+
+    - name: create root directory
+      file:
+        path: "{{ document_root }}"
+        state: directory
+
+    - name: Copy website files to the server's document root
+      copy:
+        src: "{{ app_root }}"
+        dest: "{{ document_root }}"
+        mode: preserve
+
+    - name: creating sites-available
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+         - /etc/nginx/sites-available/
+         - /etc/nginx/sites-enabled/
+
+
+    - name: Apply Nginx template
+      template:
+         src: files/nginx.conf.j2
+         dest: /etc/nginx/sites-available/app.conf
+      notify: Restart Nginx
+
+
+    - name: enable configuration
+      file:
+         dest: /etc/nginx/sites-enabled/app.conf
+         src: /etc/nginx/sites-available/app.conf
+         state: link
+

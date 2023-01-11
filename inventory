@@ -1,0 +1,5 @@
+[nginx]
+158.160.54.187 ansible_user=admin
+
+[php]
+62.84.119.211 ansible_user=admin
